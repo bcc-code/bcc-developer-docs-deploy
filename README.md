@@ -1,8 +1,6 @@
-# BCC Developerd Docs Deploy
+# BCC Developer Docs Deploy
 
-## Updating the GitHub Action
-
-The `action.yml` file is a [composite](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action) GitHub Action. It is used by workflows in other repositories like this:
+A GitHub Action that converts Markdown documentation to a BCC documentation site and deploys it to the BCC developer portal [Site](developer.bcc.no)
 
 ## Updating the GitHub Action
 
