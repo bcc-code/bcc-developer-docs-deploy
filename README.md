@@ -1,6 +1,6 @@
 # BCC Developer Docs Deploy
 
-A GitHub Action that converts Markdown documentation to a BCC documentation site and deploys it to the BCC developer portal [Site](developer.bcc.no)
+A GitHub Action that converts Markdown documentation to a BCC documentation site and deploys it to the BCC developer portal [Site](https://developer.bcc.no)
 
 ## Updating the GitHub Action
 
