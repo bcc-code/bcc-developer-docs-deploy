@@ -49,6 +49,12 @@ inputs:
     description: "Whether or not to deploy the site to the root of the custom container (true) or to a subfolder named after the repository (false)"
     required: false
     default: false
+  app-id:
+    description: "GitHub App ID for authentication"
+    required: true
+  app-private-key:
+    description: "GitHub App private key for authentication"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -56,8 +62,8 @@ runs:
       id: app-token
       uses: actions/create-github-app-token@v2
       with:
-        app_id: ${{ vars.DEVELOPER_DOCS_APP_ID }}
-        private_key: ${{ secrets.DEVELOPER_DOCS_APP_KEY }}
+        app_id: ${{ inputs.app-id }}
+        private_key: ${{ inputs.app-private-key }}
 
     - name: Check out base repository
       uses: actions/checkout@v5
