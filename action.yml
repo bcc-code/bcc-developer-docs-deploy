@@ -62,8 +62,8 @@ runs:
       id: app-token
       uses: actions/create-github-app-token@v2
       with:
-        app_id: ${{ inputs.app-id }}
-        private_key: ${{ inputs.app-private-key }}
+        app-id: ${{ inputs.app-id }}
+        private-key: ${{ inputs.app-private-key }}
 
     - name: Check out base repository
       uses: actions/checkout@v5
