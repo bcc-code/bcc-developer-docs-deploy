@@ -1,4 +1,4 @@
-# bcc-developer-docs-deploy
+# BCC Developerd Docs Deploy
 
 ## Updating the GitHub Action
 
@@ -26,20 +26,20 @@ The "version" of the Action (the `@v1` part) is just a tag that is added to a co
 This is the easiest approach. Use this if there are any breaking changes to the action, such as renaming an argument. Create a new tag with a comment like this:
 
 ```sh
-git tag -a -m "Action: Add argument" v2
+git tag v2
 ```
 
-This creates a `v2` tag with a comment of `Action: Add argument`.
+This creates a `v2` tag.
 
-Then push the tag to GitHub (and any non-pushed commits) by appending the `follow-tags` flag to `git push`:
+Then push the tag to GitHub (and any non-pushed commits) flag to `git push`:
 
 ```sh
-git push --follow-tags
+git push origin v2
 ```
 
 After doing this, all the workflows in this and other repositories need to be updated to use that `v2` tag. This enables gradual adoption, but the downside is of course a potential burden of having to upgrade a lot of repositories.
 
-### 2. Republish an existing tag
+### 2. Republish or delete an existing tag
 
 By deleting and republishing the last tag, any future workflow will use the updated version without having to update all the other workflows. This is a **dangerous** action though, as an error in the configuration can lead to all repositories breaking, and you're deleting the tag from the server forever. **Only use this for backwards compatible changes**.
 
