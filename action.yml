@@ -67,19 +67,19 @@ runs:
       with:
         path: source
 
-    - name: Zip Markdown files
-      shell: bash
-      run: |
-        cd source/${{ inputs.docs-dir }}
-        zip -r MarkdownDocs.zip .
+    # - name: Zip Markdown files
+    #   shell: bash
+    #   run: |
+    #     cd source/${{ inputs.docs-dir }}
+    #     zip -r MarkdownDocs.zip .
 
-    - name: Zip Vue components (if they exist)
-      shell: bash
-      run: |
-        if [ -d "source/${{ inputs.components-dir }}" ]; then
-          cd source/${{ inputs.components-dir }}
-          zip -r VueComponents.zip .
-        fi
+    # - name: Zip Vue components (if they exist)
+    #   shell: bash
+    #   run: |
+    #     if [ -d "source/${{ inputs.components-dir }}" ]; then
+    #       cd source/${{ inputs.components-dir }}
+    #       zip -r VueComponents.zip .
+    #     fi
 
     # - uses: microsoft/variable-substitution@v1
     #   with:
