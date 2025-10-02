@@ -142,6 +142,7 @@ runs:
           "https://developer.bcc.no/GetDoc?container=components" \
           --output VueComponents.zip
         if [ -f "VueComponents.zip" ]; then
+          unzip -o VueComponents.zip
           rm VueComponents.zip
         fi
 
