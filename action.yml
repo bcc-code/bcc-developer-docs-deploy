@@ -141,10 +141,7 @@ runs:
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           "https://developer.bcc.no/GetDoc?container=components" \
           --output VueComponents.zip
-        if [ -f "VueComponents.zip" ]; then
-          unzip -o VueComponents.zip
-          rm VueComponents.zip
-        fi
+        unzip -o VueComponents.zip
 
     - name: Build VuePress site
       shell: bash
@@ -166,4 +163,4 @@ runs:
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip \
-          "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=docs"
+          "https://developer.bcc.no/UploadDoc?customContainerName=docs"
