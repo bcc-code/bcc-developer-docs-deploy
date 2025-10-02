@@ -81,89 +81,89 @@ runs:
           zip -r VueComponents.zip .
         fi
 
-    - uses: microsoft/variable-substitution@v1
-      with:
-        files: "vuepress/docs/.vuepress/data.json"
-      env:
-        title: ${{ inputs.title }}
-        description: ${{ inputs.description }}
-        base: ${{ inputs.base }}
-        docsRepo: ${{ github.repository }}
-        docsDir: ${{ inputs.docs-dir }}
-        docsBranch: ${{ inputs.branch }}
-        collapseSidebarSections: ${{ inputs.collapse-sidebar }}
-        autoRegisterComponents: ${{ inputs.auto-register-components }}
+    # - uses: microsoft/variable-substitution@v1
+    #   with:
+    #     files: "vuepress/docs/.vuepress/data.json"
+    #   env:
+    #     title: ${{ inputs.title }}
+    #     description: ${{ inputs.description }}
+    #     base: ${{ inputs.base }}
+    #     docsRepo: ${{ github.repository }}
+    #     docsDir: ${{ inputs.docs-dir }}
+    #     docsBranch: ${{ inputs.branch }}
+    #     collapseSidebarSections: ${{ inputs.collapse-sidebar }}
+    #     autoRegisterComponents: ${{ inputs.auto-register-components }}
 
-    - name: Get Token from GitHub
-      id: token
-      shell: bash
-      run: |
-        curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/bcc-code" | jq -r ".value" | echo -e "token=$(</dev/stdin)\n" >> $GITHUB_OUTPUT
+    # - name: Get Token from GitHub
+    #   id: token
+    #   shell: bash
+    #   run: |
+    #     curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/bcc-code" | jq -r ".value" | echo -e "token=$(</dev/stdin)\n" >> $GITHUB_OUTPUT
 
-    - name: Upload Markdown files to azure storage
-      shell: bash
-      run: |
-        curl --request POST \
-          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
-          --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-          --form Docs=@source/${{ inputs.docs-dir }}/MarkdownDocs.zip \
-          "https://developer.bcc.no/UploadMdContainer?aggregateContainer=mddocs&root=${{inputs.root}}"
+    # - name: Upload Markdown files to azure storage
+    #   shell: bash
+    #   run: |
+    #     curl --request POST \
+    #       --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+    #       --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
+    #       --form Docs=@source/${{ inputs.docs-dir }}/MarkdownDocs.zip \
+    #       "https://developer.bcc.no/UploadMdContainer?aggregateContainer=mddocs&root=${{inputs.root}}"
 
-    - name: Upload Vue components to azure storage (if they exist)
-      shell: bash
-      run: |
-        if [ -f "source/${{ inputs.components-dir }}/VueComponents.zip" ]; then
-          curl --request POST \
-            --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
-            --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-            --form Docs=@source/${{ inputs.components-dir }}/VueComponents.zip \
-            "https://developer.bcc.no/UploadDoc?isPublic=false&customContainerName=components"
-        fi
+    # - name: Upload Vue components to azure storage (if they exist)
+    #   shell: bash
+    #   run: |
+    #     if [ -f "source/${{ inputs.components-dir }}/VueComponents.zip" ]; then
+    #       curl --request POST \
+    #         --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+    #         --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
+    #         --form Docs=@source/${{ inputs.components-dir }}/VueComponents.zip \
+    #         "https://developer.bcc.no/UploadDoc?isPublic=false&customContainerName=components"
+    #     fi
 
-    - name: Download Markdown files from azure storage
-      shell: bash
-      run: |
-        cd vuepress/docs/
-        curl --request GET \
-          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
-          --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-          "https://developer.bcc.no/GetDoc?container=mddocs" \
-          --output MarkdownDocs.zip
-        unzip -o MarkdownDocs.zip
+    # - name: Download Markdown files from azure storage
+    #   shell: bash
+    #   run: |
+    #     cd vuepress/docs/
+    #     curl --request GET \
+    #       --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+    #       --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
+    #       "https://developer.bcc.no/GetDoc?container=mddocs" \
+    #       --output MarkdownDocs.zip
+    #     unzip -o MarkdownDocs.zip
 
-    - name: Download Vue components from azure storage
-      shell: bash
-      run: |
-        mkdir -p vuepress/docs/.vuepress/auto-register-components
-        cd vuepress/docs/.vuepress/auto-register-components
-        curl --request GET \
-          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
-          --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-          "https://developer.bcc.no/GetDoc?container=components" \
-          --output VueComponents.zip
-        if [ -f "VueComponents.zip" ]; then
-          unzip -o VueComponents.zip
-          rm VueComponents.zip
-        fi
+    # - name: Download Vue components from azure storage
+    #   shell: bash
+    #   run: |
+    #     mkdir -p vuepress/docs/.vuepress/auto-register-components
+    #     cd vuepress/docs/.vuepress/auto-register-components
+    #     curl --request GET \
+    #       --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+    #       --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
+    #       "https://developer.bcc.no/GetDoc?container=components" \
+    #       --output VueComponents.zip
+    #     if [ -f "VueComponents.zip" ]; then
+    #       unzip -o VueComponents.zip
+    #       rm VueComponents.zip
+    #     fi
 
-    - name: Build VuePress site
-      shell: bash
-      run: |
-        chmod -R u+rwX vuepress/docs || true
-        cd vuepress
-        npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
+    # - name: Build VuePress site
+    #   shell: bash
+    #   run: |
+    #     chmod -R u+rwX vuepress/docs || true
+    #     cd vuepress
+    #     npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
 
-    - name: Zips built site files
-      shell: bash
-      run: |
-        cd vuepress/docs/.vuepress/dist
-        zip -r Docs.zip .
+    # - name: Zips built site files
+    #   shell: bash
+    #   run: |
+    #     cd vuepress/docs/.vuepress/dist
+    #     zip -r Docs.zip .
 
-    - name: Upload VuePress site
-      shell: bash
-      run: |
-        curl --request POST \
-          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
-          --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-          --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip \
-          "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=docs"
+    # - name: Upload VuePress site
+    #   shell: bash
+    #   run: |
+    #     curl --request POST \
+    #       --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+    #       --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
+    #       --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip \
+    #       "https://developer.bcc.no/UploadDoc?isPublic=${{inputs.public}}&auth=${{inputs.authentication}}&customContainerName=docs"
