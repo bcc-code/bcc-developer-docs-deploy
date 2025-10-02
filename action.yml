@@ -52,7 +52,6 @@ inputs:
   pat:
     description: "Personal Access Token for authentication"
     required: true
-    default: "${{ secrets.DEVELOPER_DOCS_DEPLOY_PAT }}"
 runs:
   using: "composite"
   steps:
