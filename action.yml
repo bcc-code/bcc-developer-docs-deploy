@@ -131,17 +131,19 @@ runs:
           --output MarkdownDocs.zip
         unzip -o MarkdownDocs.zip
 
-    # - name: Download Vue components from azure storage
-    #   shell: bash
-    #   run: |
-    #     mkdir -p vuepress/docs/.vuepress/auto-register-components
-    #     cd vuepress/docs/.vuepress/auto-register-components
-    #     curl --request GET \
-    #       --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
-    #       --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-    #       "https://developer.bcc.no/GetDoc?container=components" \
-    #       --output VueComponents.zip
-    #     unzip -o VueComponents.zip
+    - name: Download Vue components from azure storage
+      shell: bash
+      run: |
+        mkdir -p vuepress/docs/.vuepress/auto-register-components
+        cd vuepress/docs/.vuepress/auto-register-components
+        curl --request GET \
+          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
+          "https://developer.bcc.no/GetDoc?container=components" \
+          --output VueComponents.zip
+        if [ -f "VueComponents.zip" ]; then
+          rm VueComponents.zip
+        fi
 
     - name: Build VuePress site
       shell: bash
