@@ -143,7 +143,6 @@ runs:
           --output VueComponents.zip
         if [ -f "VueComponents.zip" ]; then
           unzip -o VueComponents.zip
-          rm VueComponents.zip
         fi
 
     - name: Build VuePress site
