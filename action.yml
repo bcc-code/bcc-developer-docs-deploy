@@ -92,7 +92,7 @@ runs:
         docsDir: ${{ inputs.docs-dir }}
         docsBranch: ${{ inputs.branch }}
         collapseSidebarSections: ${{ inputs.collapse-sidebar }}
-        autoRegisterComponents: ${{ inputs.auto-register-components }}
+        autoRegisterComponents: true
 
     - name: Get Token from GitHub
       id: token
