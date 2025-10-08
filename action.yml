@@ -130,6 +130,9 @@ runs:
           "https://developer.bcc.no/GetDoc?container=mddocs" \
           --output MarkdownDocs.zip
         unzip -o MarkdownDocs.zip
+        rm MarkdownDocs.zip
+        mv bcc-developer-docs/* .
+        rm -rf bcc-developer-docs
 
     - name: Download Vue components from azure storage
       shell: bash
