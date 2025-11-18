@@ -24,11 +24,11 @@ inputs:
   collapse-sidebar:
     description: "Whether to collapse sidebar sections by default"
     required: false
-    default: false
+    default: "false"
   auto-register-components:
     description: "Whether to automatically register Vue components"
     required: false
-    default: false
+    default: "false"
   components-dir:
     description: "The directory from where Vue components should automatically be registered"
     required: false
@@ -36,11 +36,11 @@ inputs:
   debug-build:
     description: "Whether or not to enable debugging for the Vite build"
     required: false
-    default: false
+    default: "false"
   public:
     description: "Whether or not to make the documentation publicly available (only works for private repositories)"
     required: false
-    default: false
+    default: "false"
   authentication:
     description: "Which provider to use for the login flow when accessing the documentation"
     required: false
@@ -48,10 +48,14 @@ inputs:
   root:
     description: "Whether or not to deploy the site to the root of the custom container (true) or to a subfolder named after the repository (false)"
     required: false
-    default: false
+    default: "false"
   pat:
     description: "Personal Access Token for authentication"
     required: true
+  env:
+    description: "Environment to deploy to (sandbox, prod)"
+    required: false
+    default: "prod"
 runs:
   using: "composite"
   steps:
@@ -81,6 +85,16 @@ runs:
           zip -r VueComponents.zip .
         fi
 
+    - name: Set domain variable
+      id: set-domain
+      shell: bash
+      run: |
+        if [ "${{ inputs.env }}" = "prod" ]; then
+          echo "domain=https://developer.bcc.no" >> $GITHUB_OUTPUT
+        else
+          echo "domain=https://developer-docs-api-sandbox-158763429389.europe-west4.run.app" >> $GITHUB_OUTPUT
+        fi
+
     - uses: microsoft/variable-substitution@v1
       with:
         files: "vuepress/docs/.vuepress/data.json"
@@ -107,7 +121,7 @@ runs:
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           --form Docs=@source/${{ inputs.docs-dir }}/MarkdownDocs.zip \
-          "https://developer.bcc.no/UploadMdContainer?aggregateContainer=mddocs&root=${{inputs.root}}"
+          "${{ steps.set-domain.outputs.domain }}/UploadMdContainer?aggregateContainer=mddocs&root=${{inputs.root}}"
 
     - name: Upload Vue components to azure storage (if they exist)
       shell: bash
@@ -117,7 +131,7 @@ runs:
             --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
             --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
             --form Docs=@source/${{ inputs.components-dir }}/VueComponents.zip \
-            "https://developer.bcc.no/UploadDoc?isPublic=false&customContainerName=components"
+            "${{ steps.set-domain.outputs.domain }}/UploadDoc?isPublic=false&customContainerName=components"
         fi
 
     - name: Download Markdown files from azure storage
@@ -127,7 +141,7 @@ runs:
         curl --request GET \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-          "https://developer.bcc.no/GetDoc?container=mddocs" \
+          "${{ steps.set-domain.outputs.domain }}/GetDoc?container=mddocs" \
           --output MarkdownDocs.zip
         unzip -o MarkdownDocs.zip
         rm MarkdownDocs.zip
@@ -142,7 +156,7 @@ runs:
         curl --request GET \
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-          "https://developer.bcc.no/GetDoc?container=components" \
+          "${{ steps.set-domain.outputs.domain }}/GetDoc?container=components" \
           --output VueComponents.zip
         if [ -f "VueComponents.zip" ]; then
           unzip -o VueComponents.zip
@@ -169,4 +183,4 @@ runs:
           --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip \
-          "https://developer.bcc.no/UploadDoc?customContainerName=docs"
+          "${{ steps.set-domain.outputs.domain }}/UploadDoc?customContainerName=docs"
