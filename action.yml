@@ -92,7 +92,7 @@ runs:
         if [ "${{ inputs.env }}" = "prod" ]; then
           echo "domain=https://developer.bcc.no" >> $GITHUB_OUTPUT
         else
-          echo "domain=https://developer-docs-api-sandbox-158763429389.europe-west4.run.app" >> $GITHUB_OUTPUT
+          echo "domain=https://developer.sandbox.bcc.no" >> $GITHUB_OUTPUT
         fi
 
     - uses: microsoft/variable-substitution@v1
