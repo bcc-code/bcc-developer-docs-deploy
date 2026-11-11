@@ -60,36 +60,42 @@ runs:
   using: "composite"
   steps:
     - name: Check out base repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: bcc-code/bcc-developer-docs
         ref: master
         token: ${{ inputs.pat }}
 
     - name: Check out current repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: source
 
     - name: Zip Markdown files
       shell: bash
+      env:
+        docs_dir: ${{ inputs.docs-dir }}
       run: |
-        cd source/${{ inputs.docs-dir }}
+        cd "source/$docs_dir"
         zip -r MarkdownDocs.zip .
 
     - name: Zip Vue components (if they exist)
       shell: bash
+      env:
+        components_dir: ${{ inputs.components-dir }}
       run: |
-        if [ -d "source/${{ inputs.components-dir }}" ]; then
-          cd source/${{ inputs.components-dir }}
+        if [ -d "source/$components_dir" ]; then
+          cd "source/$components_dir"
           zip -r VueComponents.zip .
         fi
 
     - name: Set domain variable
       id: set-domain
       shell: bash
+      env:
+        environment: ${{ inputs.env }}
       run: |
-        if [ "${{ inputs.env }}" = "prod" ]; then
+        if [ "$environment" = "prod" ]; then
           echo "domain=https://developer.bcc.no" >> $GITHUB_OUTPUT
         else
           echo "domain=https://developer.sandbox.bcc.no" >> $GITHUB_OUTPUT
@@ -103,30 +109,39 @@ runs:
 
     - name: Upload Markdown files to azure storage
       shell: bash
+      env:
+        token: ${{ steps.token.outputs.token }}
+        docs_dir: ${{ inputs.docs-dir }}
+        root_dir: ${{ inputs.root }}
       run: |
         curl --request POST \
-          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --header "Authorization: Bearer $token" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-          --form Docs=@source/${{ inputs.docs-dir }}/MarkdownDocs.zip \
-          "${{ steps.set-domain.outputs.domain }}/UploadMdContainer?aggregateContainer=mddocs&root=${{inputs.root}}"
+          --form "Docs=@source/$docs_dir/MarkdownDocs.zip" \
+          "${{ steps.set-domain.outputs.domain }}/UploadMdContainer?aggregateContainer=mddocs&root=$root_dir"
 
     - name: Upload Vue components to azure storage (if they exist)
       shell: bash
+      env:
+        token: ${{ steps.token.outputs.token }}
+        components_dir: ${{ inputs.components-dir }}
       run: |
-        if [ -f "source/${{ inputs.components-dir }}/VueComponents.zip" ]; then
+        if [ -f "source/$components_dir/VueComponents.zip" ]; then
           curl --request POST \
-            --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+            --header "Authorization: Bearer $token" \
             --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
-            --form Docs=@source/${{ inputs.components-dir }}/VueComponents.zip \
+            --form "Docs=@source/$components_dir/VueComponents.zip" \
             "${{ steps.set-domain.outputs.domain }}/UploadDoc?isPublic=false&customContainerName=components"
         fi
 
     - name: Download Markdown files from azure storage
       shell: bash
+      env:
+        token: ${{ steps.token.outputs.token }}
       run: |
         cd vuepress/docs/
         curl --request GET \
-          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --header "Authorization: Bearer $token" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           "${{ steps.set-domain.outputs.domain }}/GetDoc?container=mddocs" \
           --output MarkdownDocs.zip
@@ -137,11 +152,13 @@ runs:
 
     - name: Download Vue components from azure storage
       shell: bash
+      env:
+        token: ${{ steps.token.outputs.token }}
       run: |
         mkdir -p vuepress/docs/.vuepress/auto-register-components
         cd vuepress/docs/.vuepress/auto-register-components
         curl --request GET \
-          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --header "Authorization: Bearer $token" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           "${{ steps.set-domain.outputs.domain }}/GetDoc?container=components" \
           --output VueComponents.zip
@@ -155,7 +172,7 @@ runs:
       run: |
         chmod -R u+rwX vuepress/docs || true
         cd vuepress
-        npm i && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
+        npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
 
     - name: Zips built site files
       shell: bash
@@ -165,9 +182,11 @@ runs:
 
     - name: Upload VuePress site
       shell: bash
+      env:
+        token: ${{ steps.token.outputs.token }}
       run: |
         curl --request POST \
-          --header "Authorization: Bearer ${{steps.token.outputs.token}}" \
+          --header "Authorization: Bearer $token" \
           --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' \
           --form Docs=@vuepress/docs/.vuepress/dist/Docs.zip \
           "${{ steps.set-domain.outputs.domain }}/UploadDoc?customContainerName=docs"
