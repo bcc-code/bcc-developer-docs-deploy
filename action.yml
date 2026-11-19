@@ -167,12 +167,25 @@ runs:
           rm VueComponents.zip
         fi
 
+    # bcc-developer-docs is moving vuepress/ from npm to pnpm. Use whichever lockfile the
+    # checked-out master has, so the action works before and after that change.
+    - name: Set up pnpm
+      if: hashFiles('vuepress/pnpm-lock.yaml') != ''
+      uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      with:
+        # Installs the pnpm version pinned in devEngines.packageManager.
+        package_json_file: vuepress/package.json
+
     - name: Build VuePress site
       shell: bash
       run: |
         chmod -R u+rwX vuepress/docs || true
         cd vuepress
-        npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
+        if [ -f pnpm-lock.yaml ]; then
+          pnpm install --frozen-lockfile && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} pnpm run build ${{ inputs.debug-build == true && '--debug' || '' }}
+        else
+          npm ci && ${{ inputs.debug-build == true && 'DEBUG=*' || '' }} npm run build ${{ inputs.debug-build == true && '-- --debug' || '' }}
+        fi
 
     - name: Zips built site files
       shell: bash
